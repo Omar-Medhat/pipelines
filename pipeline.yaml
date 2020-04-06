@@ -1,0 +1,870 @@
+"apiVersion": |-
+  argoproj.io/v1alpha1
+"kind": |-
+  Workflow
+"metadata":
+  "annotations":
+    "pipelines.kubeflow.org/pipeline_spec": |-
+      {"description": "count person per image", "inputs": [{"default": "http://rok.rok.svc.cluster.local/swift/v1/b3dc6860-906f-4471-9161-03a5a2780624/notebooks/countingpersons6-0_countingpersons6-ex9fw49j2?version=13446f7f-d870-4c76-b75d-7384508c00fd", "name": "rok_countingpersons6_ex9fw49j2_url", "optional": true}], "name": "counting-ml-h91kq"}
+  "generateName": |-
+    counting-ml-h91kq-
+"spec":
+  "arguments":
+    "parameters":
+    - "name": |-
+        rok_countingpersons6_ex9fw49j2_url
+      "value": |-
+        http://rok.rok.svc.cluster.local/swift/v1/b3dc6860-906f-4471-9161-03a5a2780624/notebooks/countingpersons6-0_countingpersons6-ex9fw49j2?version=13446f7f-d870-4c76-b75d-7384508c00fd
+  "entrypoint": |-
+    counting-ml-h91kq
+  "serviceAccountName": |-
+    pipeline-runner
+  "templates":
+  - "dag":
+      "tasks":
+      - "arguments":
+          "parameters":
+          - "name": |-
+              rok_countingpersons6_ex9fw49j2_url
+            "value": |-
+              {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+        "name": |-
+          create-volume-1
+        "template": |-
+          create-volume-1
+      - "arguments":
+          "parameters":
+          - "name": |-
+              create-volume-1-name
+            "value": |-
+              {{tasks.create-volume-1.outputs.parameters.create-volume-1-name}}
+          - "name": |-
+              rok_countingpersons6_ex9fw49j2_url
+            "value": |-
+              {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+        "dependencies":
+        - |-
+          create-volume-1
+        - |-
+          results
+        "name": |-
+          final-auto-snapshot
+        "template": |-
+          final-auto-snapshot
+      - "arguments":
+          "parameters":
+          - "name": |-
+              create-volume-1-name
+            "value": |-
+              {{tasks.create-volume-1.outputs.parameters.create-volume-1-name}}
+          - "name": |-
+              rok_countingpersons6_ex9fw49j2_url
+            "value": |-
+              {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+        "dependencies":
+        - |-
+          create-volume-1
+        "name": |-
+          loadmodel
+        "template": |-
+          loadmodel
+      - "arguments":
+          "parameters":
+          - "name": |-
+              create-volume-1-name
+            "value": |-
+              {{tasks.create-volume-1.outputs.parameters.create-volume-1-name}}
+          - "name": |-
+              rok_countingpersons6_ex9fw49j2_url
+            "value": |-
+              {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+        "dependencies":
+        - |-
+          create-volume-1
+        "name": |-
+          pre-process-input
+        "template": |-
+          pre-process-input
+      - "arguments":
+          "parameters":
+          - "name": |-
+              create-volume-1-name
+            "value": |-
+              {{tasks.create-volume-1.outputs.parameters.create-volume-1-name}}
+          - "name": |-
+              rok_countingpersons6_ex9fw49j2_url
+            "value": |-
+              {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+        "dependencies":
+        - |-
+          create-volume-1
+        - |-
+          loadmodel
+        - |-
+          pre-process-input
+        "name": |-
+          predict-step
+        "template": |-
+          predict-step
+      - "arguments":
+          "parameters":
+          - "name": |-
+              create-volume-1-name
+            "value": |-
+              {{tasks.create-volume-1.outputs.parameters.create-volume-1-name}}
+          - "name": |-
+              rok_countingpersons6_ex9fw49j2_url
+            "value": |-
+              {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+        "dependencies":
+        - |-
+          create-volume-1
+        - |-
+          predict-step
+        "name": |-
+          results
+        "template": |-
+          results
+    "inputs":
+      "parameters":
+      - "name": |-
+          rok_countingpersons6_ex9fw49j2_url
+    "name": |-
+      counting-ml-h91kq
+  - "inputs":
+      "parameters":
+      - "name": |-
+          rok_countingpersons6_ex9fw49j2_url
+    "name": |-
+      create-volume-1
+    "outputs":
+      "parameters":
+      - "name": |-
+          create-volume-1-manifest
+        "valueFrom":
+          "jsonPath": |-
+            {}
+      - "name": |-
+          create-volume-1-name
+        "valueFrom":
+          "jsonPath": |-
+            {.metadata.name}
+      - "name": |-
+          create-volume-1-size
+        "valueFrom":
+          "jsonPath": |-
+            {.status.capacity.storage}
+    "resource":
+      "action": |-
+        create
+      "manifest": |
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          annotations:
+            rok/origin: '{{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}'
+          name: '{{workflow.name}}-countingpersons6-ex9fw49j2'
+        spec:
+          accessModes:
+          - ReadWriteMany
+          resources:
+            requests:
+              storage: 10Gi
+  - "container":
+      "args":
+      - |-
+        --rok-countingpersons6-ex9fw49j2-url
+      - |-
+        {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+      "command":
+      - |-
+        python3
+      - |-
+        -u
+      - |-
+        -c
+      - |
+        def final_auto_snapshot(rok_countingpersons6_ex9fw49j2_url: str):
+
+            import os
+            import shutil
+            from kale.utils import pod_utils
+            from kale.marshal import resource_save as _kale_resource_save
+            from kale.marshal import resource_load as _kale_resource_load
+
+            _kale_data_directory = "/home/jovyan/.Counting_Persons.ipynb.kale.marshal.dir"
+
+            if not os.path.isdir(_kale_data_directory):
+                os.makedirs(_kale_data_directory, exist_ok=True)
+
+            pod_utils.snapshot_pipeline_step("counting-ml-h91kq",
+                                             "final_auto_snapshot",
+                                             "/home/jovyan/Counting_Persons.ipynb")
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Final auto snapshot', description='')
+        _parser.add_argument("--rok-countingpersons6-ex9fw49j2-url", dest="rok_countingpersons6_ex9fw49j2_url", type=str, required=True, default=argparse.SUPPRESS)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = final_auto_snapshot(**_parsed_args)
+
+        if not hasattr(_outputs, '__getitem__') or isinstance(_outputs, str):
+            _outputs = [_outputs]
+
+        _output_serializers = [
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      "image": |-
+        gcr.io/arrikto-public/tensorflow-1.15.2-notebook-cpu:1.0.0.arr1
+      "securityContext":
+        "runAsUser": !!int |-
+          0
+      "volumeMounts":
+      - "mountPath": |-
+          /home/jovyan
+        "name": |-
+          create-volume-1
+      "workingDir": |-
+        /home/jovyan
+    "inputs":
+      "parameters":
+      - "name": |-
+          create-volume-1-name
+      - "name": |-
+          rok_countingpersons6_ex9fw49j2_url
+    "metadata":
+      "annotations":
+        "pipelines.kubeflow.org/component_spec": |-
+          {"inputs": [{"name": "rok_countingpersons6_ex9fw49j2_url", "type": "String"}], "name": "Final auto snapshot"}
+    "name": |-
+      final-auto-snapshot
+    "outputs":
+      "artifacts":
+      - "name": |-
+          mlpipeline-ui-metadata
+        "path": |-
+          /mlpipeline-ui-metadata.json
+    "volumes":
+    - "name": |-
+        create-volume-1
+      "persistentVolumeClaim":
+        "claimName": |-
+          {{inputs.parameters.create-volume-1-name}}
+  - "container":
+      "args":
+      - |-
+        --rok-countingpersons6-ex9fw49j2-url
+      - |-
+        {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+      "command":
+      - |-
+        python3
+      - |-
+        -u
+      - |-
+        -c
+      - |
+        def loadmodel(rok_countingpersons6_ex9fw49j2_url: str):
+
+            import os
+            import shutil
+            from kale.utils import pod_utils
+            from kale.marshal import resource_save as _kale_resource_save
+            from kale.marshal import resource_load as _kale_resource_load
+
+            _kale_data_directory = "/home/jovyan/.Counting_Persons.ipynb.kale.marshal.dir"
+
+            if not os.path.isdir(_kale_data_directory):
+                os.makedirs(_kale_data_directory, exist_ok=True)
+
+            pod_utils.snapshot_pipeline_step("counting-ml-h91kq",
+                                             "loadmodel",
+                                             "/home/jovyan/Counting_Persons.ipynb")
+
+            from PIL import Image
+            import matplotlib.pyplot as plt
+            import torch
+            import torchvision.transforms as T
+            import torchvision
+            import numpy as np
+            import cv2
+
+            COCO_INSTANCE_CATEGORY_NAMES = [
+                '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
+                'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
+                'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
+                'elephant', 'bear', 'zebra', 'giraffe', 'N/A', 'backpack', 'umbrella', 'N/A', 'N/A',
+                'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
+                'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+                'bottle', 'N/A', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
+                'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
+                'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'N/A', 'dining table',
+                'N/A', 'N/A', 'toilet', 'N/A', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
+                'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'N/A', 'book',
+                'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
+            ]
+            model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
+                pretrained=True)
+            model.eval()
+
+            # -----------------------DATA SAVING START---------------------------------
+            if "model" in locals():
+                _kale_resource_save(model, os.path.join(_kale_data_directory, "model"))
+            else:
+                print("_kale_resource_save: `model` not found.")
+            if "COCO_INSTANCE_CATEGORY_NAMES" in locals():
+                _kale_resource_save(COCO_INSTANCE_CATEGORY_NAMES, os.path.join(
+                    _kale_data_directory, "COCO_INSTANCE_CATEGORY_NAMES"))
+            else:
+                print("_kale_resource_save: `COCO_INSTANCE_CATEGORY_NAMES` not found.")
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Loadmodel', description='')
+        _parser.add_argument("--rok-countingpersons6-ex9fw49j2-url", dest="rok_countingpersons6_ex9fw49j2_url", type=str, required=True, default=argparse.SUPPRESS)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = loadmodel(**_parsed_args)
+
+        if not hasattr(_outputs, '__getitem__') or isinstance(_outputs, str):
+            _outputs = [_outputs]
+
+        _output_serializers = [
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      "image": |-
+        gcr.io/arrikto-public/tensorflow-1.15.2-notebook-cpu:1.0.0.arr1
+      "securityContext":
+        "runAsUser": !!int |-
+          0
+      "volumeMounts":
+      - "mountPath": |-
+          /home/jovyan
+        "name": |-
+          create-volume-1
+      "workingDir": |-
+        /home/jovyan
+    "inputs":
+      "parameters":
+      - "name": |-
+          create-volume-1-name
+      - "name": |-
+          rok_countingpersons6_ex9fw49j2_url
+    "metadata":
+      "annotations":
+        "pipelines.kubeflow.org/component_spec": |-
+          {"inputs": [{"name": "rok_countingpersons6_ex9fw49j2_url", "type": "String"}], "name": "Loadmodel"}
+    "name": |-
+      loadmodel
+    "outputs":
+      "artifacts":
+      - "name": |-
+          mlpipeline-ui-metadata
+        "path": |-
+          /mlpipeline-ui-metadata.json
+    "volumes":
+    - "name": |-
+        create-volume-1
+      "persistentVolumeClaim":
+        "claimName": |-
+          {{inputs.parameters.create-volume-1-name}}
+  - "container":
+      "args":
+      - |-
+        --rok-countingpersons6-ex9fw49j2-url
+      - |-
+        {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+      "command":
+      - |-
+        python3
+      - |-
+        -u
+      - |-
+        -c
+      - |
+        def pre_process_input(rok_countingpersons6_ex9fw49j2_url: str):
+
+            import os
+            import shutil
+            from kale.utils import pod_utils
+            from kale.marshal import resource_save as _kale_resource_save
+            from kale.marshal import resource_load as _kale_resource_load
+
+            _kale_data_directory = "/home/jovyan/.Counting_Persons.ipynb.kale.marshal.dir"
+
+            if not os.path.isdir(_kale_data_directory):
+                os.makedirs(_kale_data_directory, exist_ok=True)
+
+            pod_utils.snapshot_pipeline_step("counting-ml-h91kq",
+                                             "pre_process_input",
+                                             "/home/jovyan/Counting_Persons.ipynb")
+
+            from PIL import Image
+            import matplotlib.pyplot as plt
+            import torch
+            import torchvision.transforms as T
+            import torchvision
+            import numpy as np
+            import cv2
+
+            cap = cv2.VideoCapture('pop.jpg')
+            check, vid = cap.read()
+
+            # -----------------------DATA SAVING START---------------------------------
+            if "vid" in locals():
+                _kale_resource_save(vid, os.path.join(_kale_data_directory, "vid"))
+            else:
+                print("_kale_resource_save: `vid` not found.")
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Pre process input', description='')
+        _parser.add_argument("--rok-countingpersons6-ex9fw49j2-url", dest="rok_countingpersons6_ex9fw49j2_url", type=str, required=True, default=argparse.SUPPRESS)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = pre_process_input(**_parsed_args)
+
+        if not hasattr(_outputs, '__getitem__') or isinstance(_outputs, str):
+            _outputs = [_outputs]
+
+        _output_serializers = [
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      "image": |-
+        gcr.io/arrikto-public/tensorflow-1.15.2-notebook-cpu:1.0.0.arr1
+      "securityContext":
+        "runAsUser": !!int |-
+          0
+      "volumeMounts":
+      - "mountPath": |-
+          /home/jovyan
+        "name": |-
+          create-volume-1
+      "workingDir": |-
+        /home/jovyan
+    "inputs":
+      "parameters":
+      - "name": |-
+          create-volume-1-name
+      - "name": |-
+          rok_countingpersons6_ex9fw49j2_url
+    "metadata":
+      "annotations":
+        "pipelines.kubeflow.org/component_spec": |-
+          {"inputs": [{"name": "rok_countingpersons6_ex9fw49j2_url", "type": "String"}], "name": "Pre process input"}
+    "name": |-
+      pre-process-input
+    "outputs":
+      "artifacts":
+      - "name": |-
+          mlpipeline-ui-metadata
+        "path": |-
+          /mlpipeline-ui-metadata.json
+    "volumes":
+    - "name": |-
+        create-volume-1
+      "persistentVolumeClaim":
+        "claimName": |-
+          {{inputs.parameters.create-volume-1-name}}
+  - "container":
+      "args":
+      - |-
+        --rok-countingpersons6-ex9fw49j2-url
+      - |-
+        {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+      "command":
+      - |-
+        python3
+      - |-
+        -u
+      - |-
+        -c
+      - |
+        def predict_step(rok_countingpersons6_ex9fw49j2_url: str):
+
+            import os
+            import shutil
+            from kale.utils import pod_utils
+            from kale.marshal import resource_save as _kale_resource_save
+            from kale.marshal import resource_load as _kale_resource_load
+
+            _kale_data_directory = "/home/jovyan/.Counting_Persons.ipynb.kale.marshal.dir"
+
+            if not os.path.isdir(_kale_data_directory):
+                os.makedirs(_kale_data_directory, exist_ok=True)
+
+            pod_utils.snapshot_pipeline_step("counting-ml-h91kq",
+                                             "predict_step",
+                                             "/home/jovyan/Counting_Persons.ipynb")
+
+            # -----------------------DATA LOADING START--------------------------------
+            _kale_directory_file_names = [
+                os.path.splitext(f)[0]
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f))
+            ]
+
+            if "model" not in _kale_directory_file_names:
+                raise ValueError("model" + " does not exists in directory")
+
+            _kale_load_file_name = [
+                f
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f)) and
+                os.path.splitext(f)[0] == "model"
+            ]
+            if len(_kale_load_file_name) > 1:
+                raise ValueError("Found multiple files with name " +
+                                 "model" + ": " + str(_kale_load_file_name))
+            _kale_load_file_name = _kale_load_file_name[0]
+            model = _kale_resource_load(os.path.join(
+                _kale_data_directory, _kale_load_file_name))
+
+            if "vid" not in _kale_directory_file_names:
+                raise ValueError("vid" + " does not exists in directory")
+
+            _kale_load_file_name = [
+                f
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f)) and
+                os.path.splitext(f)[0] == "vid"
+            ]
+            if len(_kale_load_file_name) > 1:
+                raise ValueError("Found multiple files with name " +
+                                 "vid" + ": " + str(_kale_load_file_name))
+            _kale_load_file_name = _kale_load_file_name[0]
+            vid = _kale_resource_load(os.path.join(
+                _kale_data_directory, _kale_load_file_name))
+
+            if "COCO_INSTANCE_CATEGORY_NAMES" not in _kale_directory_file_names:
+                raise ValueError("COCO_INSTANCE_CATEGORY_NAMES" +
+                                 " does not exists in directory")
+
+            _kale_load_file_name = [
+                f
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f)) and
+                os.path.splitext(f)[0] == "COCO_INSTANCE_CATEGORY_NAMES"
+            ]
+            if len(_kale_load_file_name) > 1:
+                raise ValueError("Found multiple files with name " +
+                                 "COCO_INSTANCE_CATEGORY_NAMES" + ": " + str(_kale_load_file_name))
+            _kale_load_file_name = _kale_load_file_name[0]
+            COCO_INSTANCE_CATEGORY_NAMES = _kale_resource_load(
+                os.path.join(_kale_data_directory, _kale_load_file_name))
+            # -----------------------DATA LOADING END----------------------------------
+
+            from PIL import Image
+            import matplotlib.pyplot as plt
+            import torch
+            import torchvision.transforms as T
+            import torchvision
+            import numpy as np
+            import cv2
+
+            boundary_dict, Dict = {}, {}
+            img = vid
+            threshold = 0.6
+            rect_th, text_size, text_th = 1, 1, 1
+            Boundary_Dict = {}
+            img = Image.fromarray(img)
+            transform = T.Compose([T.ToTensor()])
+            img = transform(img)
+            pred = model([img])
+            pred_class = [COCO_INSTANCE_CATEGORY_NAMES[i]
+                          for i in list(pred[0]['labels'].numpy())]
+            pred_boxes = [[(i[0], i[1]), (i[2], i[3])]
+                          for i in list(pred[0]['boxes'].detach().numpy())]
+            pred_score = list(pred[0]['scores'].detach().numpy())
+            pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]
+            pred_boxes = pred_boxes[:pred_t + 1]
+            pred_class = pred_class[:pred_t + 1]
+            boxes, pred_cls = pred_boxes, pred_class
+
+            # -----------------------DATA SAVING START---------------------------------
+            if "boxes" in locals():
+                _kale_resource_save(boxes, os.path.join(_kale_data_directory, "boxes"))
+            else:
+                print("_kale_resource_save: `boxes` not found.")
+            if "pred_cls" in locals():
+                _kale_resource_save(pred_cls, os.path.join(
+                    _kale_data_directory, "pred_cls"))
+            else:
+                print("_kale_resource_save: `pred_cls` not found.")
+            if "Dict" in locals():
+                _kale_resource_save(Dict, os.path.join(_kale_data_directory, "Dict"))
+            else:
+                print("_kale_resource_save: `Dict` not found.")
+            if "Boundary_Dict" in locals():
+                _kale_resource_save(Boundary_Dict, os.path.join(
+                    _kale_data_directory, "Boundary_Dict"))
+            else:
+                print("_kale_resource_save: `Boundary_Dict` not found.")
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Predict step', description='')
+        _parser.add_argument("--rok-countingpersons6-ex9fw49j2-url", dest="rok_countingpersons6_ex9fw49j2_url", type=str, required=True, default=argparse.SUPPRESS)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = predict_step(**_parsed_args)
+
+        if not hasattr(_outputs, '__getitem__') or isinstance(_outputs, str):
+            _outputs = [_outputs]
+
+        _output_serializers = [
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      "image": |-
+        gcr.io/arrikto-public/tensorflow-1.15.2-notebook-cpu:1.0.0.arr1
+      "securityContext":
+        "runAsUser": !!int |-
+          0
+      "volumeMounts":
+      - "mountPath": |-
+          /home/jovyan
+        "name": |-
+          create-volume-1
+      "workingDir": |-
+        /home/jovyan
+    "inputs":
+      "parameters":
+      - "name": |-
+          create-volume-1-name
+      - "name": |-
+          rok_countingpersons6_ex9fw49j2_url
+    "metadata":
+      "annotations":
+        "pipelines.kubeflow.org/component_spec": |-
+          {"inputs": [{"name": "rok_countingpersons6_ex9fw49j2_url", "type": "String"}], "name": "Predict step"}
+    "name": |-
+      predict-step
+    "outputs":
+      "artifacts":
+      - "name": |-
+          mlpipeline-ui-metadata
+        "path": |-
+          /mlpipeline-ui-metadata.json
+    "volumes":
+    - "name": |-
+        create-volume-1
+      "persistentVolumeClaim":
+        "claimName": |-
+          {{inputs.parameters.create-volume-1-name}}
+  - "container":
+      "args":
+      - |-
+        --rok-countingpersons6-ex9fw49j2-url
+      - |-
+        {{inputs.parameters.rok_countingpersons6_ex9fw49j2_url}}
+      "command":
+      - |-
+        python3
+      - |-
+        -u
+      - |-
+        -c
+      - |
+        def results(rok_countingpersons6_ex9fw49j2_url: str):
+
+            import os
+            import shutil
+            from kale.utils import pod_utils
+            from kale.marshal import resource_save as _kale_resource_save
+            from kale.marshal import resource_load as _kale_resource_load
+
+            _kale_data_directory = "/home/jovyan/.Counting_Persons.ipynb.kale.marshal.dir"
+
+            if not os.path.isdir(_kale_data_directory):
+                os.makedirs(_kale_data_directory, exist_ok=True)
+
+            pod_utils.snapshot_pipeline_step("counting-ml-h91kq",
+                                             "results",
+                                             "/home/jovyan/Counting_Persons.ipynb")
+
+            # -----------------------DATA LOADING START--------------------------------
+            _kale_directory_file_names = [
+                os.path.splitext(f)[0]
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f))
+            ]
+
+            if "boxes" not in _kale_directory_file_names:
+                raise ValueError("boxes" + " does not exists in directory")
+
+            _kale_load_file_name = [
+                f
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f)) and
+                os.path.splitext(f)[0] == "boxes"
+            ]
+            if len(_kale_load_file_name) > 1:
+                raise ValueError("Found multiple files with name " +
+                                 "boxes" + ": " + str(_kale_load_file_name))
+            _kale_load_file_name = _kale_load_file_name[0]
+            boxes = _kale_resource_load(os.path.join(
+                _kale_data_directory, _kale_load_file_name))
+
+            if "pred_cls" not in _kale_directory_file_names:
+                raise ValueError("pred_cls" + " does not exists in directory")
+
+            _kale_load_file_name = [
+                f
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f)) and
+                os.path.splitext(f)[0] == "pred_cls"
+            ]
+            if len(_kale_load_file_name) > 1:
+                raise ValueError("Found multiple files with name " +
+                                 "pred_cls" + ": " + str(_kale_load_file_name))
+            _kale_load_file_name = _kale_load_file_name[0]
+            pred_cls = _kale_resource_load(os.path.join(
+                _kale_data_directory, _kale_load_file_name))
+
+            if "Dict" not in _kale_directory_file_names:
+                raise ValueError("Dict" + " does not exists in directory")
+
+            _kale_load_file_name = [
+                f
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f)) and
+                os.path.splitext(f)[0] == "Dict"
+            ]
+            if len(_kale_load_file_name) > 1:
+                raise ValueError("Found multiple files with name " +
+                                 "Dict" + ": " + str(_kale_load_file_name))
+            _kale_load_file_name = _kale_load_file_name[0]
+            Dict = _kale_resource_load(os.path.join(
+                _kale_data_directory, _kale_load_file_name))
+
+            if "Boundary_Dict" not in _kale_directory_file_names:
+                raise ValueError("Boundary_Dict" + " does not exists in directory")
+
+            _kale_load_file_name = [
+                f
+                for f in os.listdir(_kale_data_directory)
+                if os.path.isfile(os.path.join(_kale_data_directory, f)) and
+                os.path.splitext(f)[0] == "Boundary_Dict"
+            ]
+            if len(_kale_load_file_name) > 1:
+                raise ValueError("Found multiple files with name " +
+                                 "Boundary_Dict" + ": " + str(_kale_load_file_name))
+            _kale_load_file_name = _kale_load_file_name[0]
+            Boundary_Dict = _kale_resource_load(os.path.join(
+                _kale_data_directory, _kale_load_file_name))
+            # -----------------------DATA LOADING END----------------------------------
+
+            from PIL import Image
+            import matplotlib.pyplot as plt
+            import torch
+            import torchvision.transforms as T
+            import torchvision
+            import numpy as np
+            import cv2
+
+            cnt = 0
+            for i in range(len(boxes)):
+                if pred_cls[i] != "person":
+                    continue
+                cnt += 1
+                Boundary_Dict['obj'+str(cnt)] = str(boxes[i])
+            boundary_dict = Boundary_Dict
+            Dict['img'] = boundary_dict
+            print(len(Dict['img']))
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Results', description='')
+        _parser.add_argument("--rok-countingpersons6-ex9fw49j2-url", dest="rok_countingpersons6_ex9fw49j2_url", type=str, required=True, default=argparse.SUPPRESS)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = results(**_parsed_args)
+
+        if not hasattr(_outputs, '__getitem__') or isinstance(_outputs, str):
+            _outputs = [_outputs]
+
+        _output_serializers = [
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      "image": |-
+        gcr.io/arrikto-public/tensorflow-1.15.2-notebook-cpu:1.0.0.arr1
+      "securityContext":
+        "runAsUser": !!int |-
+          0
+      "volumeMounts":
+      - "mountPath": |-
+          /home/jovyan
+        "name": |-
+          create-volume-1
+      "workingDir": |-
+        /home/jovyan
+    "inputs":
+      "parameters":
+      - "name": |-
+          create-volume-1-name
+      - "name": |-
+          rok_countingpersons6_ex9fw49j2_url
+    "metadata":
+      "annotations":
+        "pipelines.kubeflow.org/component_spec": |-
+          {"inputs": [{"name": "rok_countingpersons6_ex9fw49j2_url", "type": "String"}], "name": "Results"}
+    "name": |-
+      results
+    "outputs":
+      "artifacts":
+      - "name": |-
+          mlpipeline-ui-metadata
+        "path": |-
+          /mlpipeline-ui-metadata.json
+    "volumes":
+    - "name": |-
+        create-volume-1
+      "persistentVolumeClaim":
+        "claimName": |-
+          {{inputs.parameters.create-volume-1-name}}
